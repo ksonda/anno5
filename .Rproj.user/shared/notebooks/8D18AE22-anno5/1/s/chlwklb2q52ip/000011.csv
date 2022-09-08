@@ -1,0 +1,4 @@
+"0","library(osmdata)"
+"2","Data (c) OpenStreetMap contributors, ODbL 1.0. https://www.openstreetmap.org/copyright
+"
+"0","bbx <- getbb(""Stanford, CA"")"

@@ -1,0 +1,31 @@
+{
+    "id": "6ECD7459",
+    "path": "~/Documents/Personal-GitHub/anno5/anno5.qmd",
+    "project_path": "anno5.qmd",
+    "type": "quarto_markdown",
+    "hash": "945647773",
+    "contents": "",
+    "dirty": true,
+    "created": 1662641414384.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "rmdVisualMode": "false",
+        "rmdVisualWrapConfigured": "true",
+        "source_window_id": "",
+        "Source": "Source",
+        "docOutlineVisible": "1",
+        "rmdVisualCollapsedChunks": "",
+        "rmdVisualModeLocation": "137:68",
+        "cursorPosition": "249,0",
+        "scrollLine": "226"
+    },
+    "folds": "10|6|123|0|\n",
+    "lastKnownWriteTime": 1662652021,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1662652021692,
+    "read_only": false,
+    "read_only_alternatives": []
+}
