@@ -1,0 +1,253 @@
+---
+title: "anno5"
+---
+
+## Custom art maps
+
+adapted from http://estebanmoro.org/post/2020-10-19-personal-art-map-with-r/
+
+First CA years
+
+```{r}
+library(osmdata)
+require(sf)
+require(ggplot2)
+min_lon <- -122.2399
+max_lon <- -122.0457
+min_lat <- 37.3516
+max_lat <- 37.4650
+bbx <- rbind(x=c(min_lon,max_lon),y=c(min_lat,max_lat))
+colnames(bbx) <- c("min","max")
+
+highways <- bbx %>%
+  opq()%>%
+  add_osm_feature(key = "highway", 
+                  value=c("motorway", "trunk",
+                          "primary","secondary", 
+                          "tertiary","motorway_link",
+                          "trunk_link","primary_link",
+                          "secondary_link",
+                          "tertiary_link",
+                          "coastline")) %>%
+  osmdata_sf()
+
+streets <- bbx %>%
+  opq()%>%
+  add_osm_feature(key = "highway", 
+                  value = c("residential", "living_street",
+                            "service","unclassified",
+                            "pedestrian", "footway",
+                            "track","path")) %>%
+  osmdata_sf()
+
+color_roads <- rgb(0.42,0.449,0.488)
+
+require(tigris)
+counties_CA <- counties(state="CA",cb=T,class="sf",)
+counties_CA <- st_crop(counties_CA,
+                       xmin=min_lon,xmax=max_lon,
+                       ymin=min_lat,ymax=max_lat)
+ggplot() + 
+  geom_sf(data=counties_CA,fill="gray",lwd=0)+
+  coord_sf(xlim = c(min(bbx[1,]), max(bbx[1,])), 
+         ylim = c(min(bbx[2,]), max(bbx[2,])),
+         expand = FALSE)+
+  theme(legend.position = F) + theme_void()
+
+get_water <- function(county_GEOID){
+  area_water("CA", county_GEOID, class = "sf")
+}
+water <- do.call(rbind, 
+                 lapply(counties_CA$COUNTYFP,get_water))
+water <- st_crop(water,
+                 xmin=min_lon,xmax=max_lon,
+                 ymin=min_lat,ymax=max_lat)
+
+ggplot() + 
+  geom_sf(data=counties_CA)+
+  geom_sf(data=water,
+          inherit.aes = F,
+          col="red")+
+  coord_sf(xlim = c(min(bbx[1,]), max(bbx[1,])), 
+         ylim = c(min(bbx[2,]), max(bbx[2,])),
+         expand = FALSE)+
+  theme(legend.position = F) + theme_void()
+
+st_erase <- function(x, y) {
+  st_difference(x, st_union(y))
+}
+counties_CA <- st_erase(st_union(counties_CA),water)
+
+
+lat_lantana <- 37.4256619
+lon_lantana <- -122.1606451
+lantana <- st_point(c(lon_lantana,lat_lantana))
+lantana <- st_sfc(lantana,crs=4326) 
+
+lat_shire<- 37.41265
+lon_shire <- -122.09716
+shire <- st_point(c(lon_shire,lat_shire))
+shire <- st_sfc(shire,crs=4326) 
+
+pts <- c(lantana,shire)
+
+ca <- ggplot() + 
+  geom_sf(data=counties_CA%>%st_transform(4326),
+          inherit.aes= FALSE,
+          lwd=0.0,fill="#DCDCDC")+
+  geom_sf(data = streets$osm_lines,
+          inherit.aes = FALSE,
+          color=rgb(0.203,0.234,0.277),
+          size = .4,
+          alpha = .65) +
+  geom_sf(data = highways$osm_lines,
+          inherit.aes = FALSE,
+          color=rgb(0.203,0.234,0.277),
+          size = .6,
+          alpha = .65) +
+  geom_sf(data = pts,
+          shape = 23,
+          color = "chocolate3",
+          fill = "chocolate3",
+          size = 5,
+          alpha = 1) +
+  coord_sf(xlim = c(min(bbx[1,]), max(bbx[1,])), 
+           ylim = c(min(bbx[2,]), max(bbx[2,])),
+           expand = FALSE) +
+  theme(legend.position = F) + theme_void()+
+  theme(panel.background=
+          element_rect(fill = "#6495ED")) + theme(plot.margin=grid::unit(c(0,0,0,0), "mm")) + labs(x=NULL, y=NULL)
+
+pdf('ca.pdf', width=14, height=11)
+ca
+dev.off()
+```
+
+
+Now NC
+```{r}
+min_lon <- -79.1364
+max_lon <- -78.9423
+min_lat <- 35.8633
+max_lat <- 35.9790
+bbx <- rbind(x=c(min_lon,max_lon),y=c(min_lat,max_lat))
+colnames(bbx) <- c("min","max")
+
+highways <- bbx %>%
+  opq()%>%
+  add_osm_feature(key = "highway", 
+                  value=c("motorway", "trunk",
+                          "primary","secondary", 
+                          "tertiary","motorway_link",
+                          "trunk_link","primary_link",
+                          "secondary_link",
+                          "tertiary_link",
+                          "coastline")) %>%
+  osmdata_sf()
+
+streets <- bbx %>%
+  opq()%>%
+  add_osm_feature(key = "highway", 
+                  value = c("residential", "living_street",
+                            "service","unclassified",
+                            "pedestrian", "footway",
+                            "track","path")) %>%
+  osmdata_sf()
+
+color_roads <- rgb(0.42,0.449,0.488)
+
+require(tigris)
+counties_NC <- counties(state="NC",cb=T,class="sf",)
+counties_NC <- st_crop(counties_NC,
+                       xmin=min_lon,xmax=max_lon,
+                       ymin=min_lat,ymax=max_lat)
+ggplot() + 
+  geom_sf(data=counties_NC,fill="gray",lwd=0)+
+  coord_sf(xlim = c(min(bbx[1,]), max(bbx[1,])), 
+         ylim = c(min(bbx[2,]), max(bbx[2,])),
+         expand = FALSE)+
+  theme(legend.position = F) + theme_void()
+
+ get_water <- function(county_GEOID){
+   area_water("NC", county_GEOID, class = "sf")
+ }
+ water <- do.call(rbind, 
+                  lapply(counties_NC$COUNTYFP,get_water))
+water <- st_crop(water,
+                  xmin=min_lon,xmax=max_lon,
+                 ymin=min_lat,ymax=max_lat)
+
+ggplot() + 
+  geom_sf(data=counties_NC)+
+  geom_sf(data=water,
+          inherit.aes = F,
+          col="red")+
+  coord_sf(xlim = c(min(bbx[1,]), max(bbx[1,])), 
+         ylim = c(min(bbx[2,]), max(bbx[2,])),
+         expand = FALSE)+
+  theme(legend.position = F) + theme_void()
+
+ st_erase <- function(x, y) {
+   st_difference(x, st_union(y))
+ }
+ counties_NC <- st_erase(st_union(counties_NC),water)
+
+
+lat_laurel <- 35.9086431
+lon_laurel <- -79.076005
+laurel <- st_point(c(lon_laurel,lat_laurel))
+laurel <- st_sfc(laurel,crs=4326) 
+
+lat_sueann<- 35.9178728
+lon_sueann <- -79.0775149
+sueann <- st_point(c(lon_sueann,lat_sueann))
+sueann <- st_sfc(sueann,crs=4326) 
+
+lat_fy <- 35.9056833
+lon_fy <- -79.0920431
+fy <- st_point(c(lon_fy,lat_fy))
+fy <- st_sfc(fy,crs=4326) 
+
+lat_lor<- 35.9020061
+lon_lor <- -79.0856890
+lor <- st_point(c(lon_lor,lat_lor))
+lor <- st_sfc(lor,crs=4326) 
+
+lat_vv<- 35.9528228
+lon_vv <- -79.0730897
+vv <- st_point(c(lon_vv,lat_vv))
+vv <- st_sfc(vv,crs=4326) 
+
+pts <- c(laurel,sueann,fy,lor,vv)
+
+nc <- ggplot() + 
+  geom_sf(data=counties_NC%>%st_transform(4326),
+          inherit.aes= FALSE,
+          lwd=0.0,fill="#DCDCDC")+
+  geom_sf(data = streets$osm_lines,
+          inherit.aes = FALSE,
+          color=rgb(0.203,0.234,0.277),
+          size = .4,
+          alpha = .65) +
+  geom_sf(data = highways$osm_lines,
+          inherit.aes = FALSE,
+          color=rgb(0.203,0.234,0.277),
+          size = .6,
+          alpha = .65) +
+  geom_sf(data = pts,
+          shape = 23,
+          color = "chocolate3",
+          fill = "chocolate3",
+          size = 5,
+          alpha = 1) +
+  coord_sf(xlim = c(min(bbx[1,]), max(bbx[1,])), 
+           ylim = c(min(bbx[2,]), max(bbx[2,])),
+           expand = FALSE) +
+  theme(legend.position = F) + theme_void()+
+  theme(panel.background=
+          element_rect(fill = "#6495ED")) + theme(plot.margin=grid::unit(c(0,0,0,0), "mm")) + labs(x=NULL, y=NULL)
+
+png('nc.png', width=14, height=11)
+nc
+dev.off()
+```
