@@ -2,7 +2,7 @@
 title: "anno5"
 ---
 
-## Custom art maps
+## maps where we lived
 
 adapted from http://estebanmoro.org/post/2020-10-19-personal-art-map-with-r/
 
@@ -12,6 +12,13 @@ First CA years
 library(osmdata)
 require(sf)
 require(ggplot2)
+
+## assemble bounding box to get OSM data from
+
+# get from place name
+# bbx <- getbb("Palo Alto, CA")
+
+# didnt give exactly what I wanted, assemble custom bounding box
 min_lon <- -122.2399
 max_lon <- -122.0457
 min_lat <- 37.3516
@@ -19,6 +26,7 @@ max_lat <- 37.4650
 bbx <- rbind(x=c(min_lon,max_lon),y=c(min_lat,max_lat))
 colnames(bbx) <- c("min","max")
 
+#get main road network from OSM
 highways <- bbx %>%
   opq()%>%
   add_osm_feature(key = "highway", 
@@ -31,6 +39,7 @@ highways <- bbx %>%
                           "coastline")) %>%
   osmdata_sf()
 
+# get secondary road netowrk from OSM
 streets <- bbx %>%
   opq()%>%
   add_osm_feature(key = "highway", 
@@ -42,6 +51,7 @@ streets <- bbx %>%
 
 color_roads <- rgb(0.42,0.449,0.488)
 
+#get land boundaries, subtract out water
 require(tigris)
 counties_CA <- counties(state="CA",cb=T,class="sf",)
 counties_CA <- st_crop(counties_CA,
@@ -78,7 +88,7 @@ st_erase <- function(x, y) {
 }
 counties_CA <- st_erase(st_union(counties_CA),water)
 
-
+# plot points of interest
 lat_lantana <- 37.4256619
 lon_lantana <- -122.1606451
 lantana <- st_point(c(lon_lantana,lat_lantana))
@@ -91,6 +101,7 @@ shire <- st_sfc(shire,crs=4326)
 
 pts <- c(lantana,shire)
 
+# make plot
 ca <- ggplot() + 
   geom_sf(data=counties_CA%>%st_transform(4326),
           inherit.aes= FALSE,
@@ -118,6 +129,7 @@ ca <- ggplot() +
   theme(panel.background=
           element_rect(fill = "#6495ED")) + theme(plot.margin=grid::unit(c(0,0,0,0), "mm")) + labs(x=NULL, y=NULL)
 
+#export
 pdf('ca.pdf', width=14, height=11)
 ca
 dev.off()
